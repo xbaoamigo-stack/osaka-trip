@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🦞 大阪旅遊助手｜2人｜9/19-9/26</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #ff6b6b, #4ecdc4); min-height: 100vh; padding: 20px; }
+    .container { max-width: 480px; margin: 0 auto; }
+    h1 { color: white; text-align: center; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+    .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .card h2 { color: #333; font-size: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .tab-bar { display: flex; background: #f0f0f0; border-radius: 12px; padding: 4px; margin-bottom: 16px; }
+    .tab { flex: 1; padding: 10px; text-align: center; border-radius: 10px; cursor: pointer; font-weight: 600; color: #666; transition: all 0.3s; }
+    .tab.active { background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: white; }
+    .tab:hover:not(.active) { background: #e0e0e0; }
+    .content-section { display: none; }
+    .content-section.active { display: block; }
+    input, textarea, select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 10px; transition: border-color 0.3s; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #ff6b6b; }
+    button { width: 100%; padding: 14px; background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255,107,107,0.4); }
+    button:active { transform: translateY(0); }
+    .item-list { list-style: none; }
+    .item-list li { padding: 12px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+    .item-list li:last-child { border-bottom: none; }
+    .delete-btn { background: #ff4757; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    .weather-icon { font-size: 48px; text-align: center; padding: 20px; }
+    .weather-temp { font-size: 36px; text-align: center; font-weight: bold; color: #333; }
+    .weather-desc { text-align: center; color: #666; margin-bottom: 15px; }
+    .exchange-rate { text-align: center; padding: 20px; background: #f8f8f8; border-radius: 10px; }
+    .rate-value { font-size: 32px; font-weight: bold; color: #ff6b6b; }
+    .note-item { background: #f8f8f8; padding: 12px; border-radius: 8px; margin-bottom: 8px; }
+    .note-item .time { color: #ff6b6b; font-size: 12px; font-weight: 600; }
+    .note-item .text { color: #333; margin-top: 4px; }
+    .tag { display: inline-block; padding: 4px 10px; background: #ff6b6b; color: white; border-radius: 20px; font-size: 12px; margin-right: 4px; margin-bottom: 4px; }
+    .food-tag { background: #4ecdc4; }
+    .checklist-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #f0f0f0; }
+    .checklist-item input[type="checkbox"] { width: auto; margin: 0; }
+    .translation-result { background: #f0f0f0; padding: 15px; border-radius: 10px; margin-top: 10px; }
+    .jp-text { color: #ff6b6b; font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+    .tw-text { color: #333; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🦞 大阪旅遊助手</h1>
+    <div style="text-align:center;color:white;margin-bottom:20px;">
+      <span style="background:rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;">
+        📅 2026/9/19 - 9/26 ｜ 👥 2人 ｜ 🏯 大阪
+      </span>
+    </div>
+    
+    <div class="card">
+      <div class="weather-icon" id="weatherIcon">🌸</div>
+      <div class="weather-temp" id="weatherTemp">--°</div>
+      <div class="weather-desc" id="weatherDesc">大阪天氣</div>
+      <button onclick="refreshWeather()" style="margin-top: 10px;">🔄 更新天氣</button>
+    </div>
+
+    <div class="card">
+      <h2>💱 匯率計算</h2>
+      <div class="exchange-rate">
+        <div>台幣 → 日幣</div>
+        <div class="rate-value" id="rateDisplay">0.22</div>
+        <div style="color:#666;font-size:14px;">1 TWD = 0.22 JPY（參考值）</div>
+      </div>
+      <input type="number" id="twdAmount" placeholder="輸入台幣金額" oninput="convertCurrency()">
+      <div style="text-align:center;font-size:20px;font-weight:bold;color:#4ecdc4;" id="jpyResult">= 0 ¥</div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('itinerary')">行程</div>
+      <div class="tab" onclick="switchTab('notes')">筆記</div>
+      <div class="tab" onclick="switchTab('translate')">翻譯</div>
+      <div class="tab" onclick="switchTab('food')">美食</div>
+      <div class="tab" onclick="switchTab('checklist')">打包</div>
+    </div>
+
+    <div id="itinerary" class="content-section active">
+      <div class="card" style="background:#fff3f0;">
+        <h2>🗓️ 建議行程（7天6夜）</h2>
+        <div style="font-size:14px;color:#666;margin-bottom:10px;">
+          <strong>Day1（9/19）</strong>：抵達大阪 → 心齋橋<br>
+          <strong>Day2（9/20）</strong>：大阪城 → 黑門市場 → 道頓堀<br>
+          <strong>Day3（9/21）</strong>：環球影城（USJ）<br>
+          <strong>Day4（9/22）</strong>：奈良（餵鹿）→ 唐吉訶德<br>
+          <strong>Day5（9/23）</strong>：通天閣 → 新世界 → 天王寺<br>
+          <strong>Day6（9/24）</strong>：大阪近郊（神戶/京都）<br>
+          <strong>Day7（9/25）</strong>：最後購物 → 機場<br>
+          <strong>Day8（9/26）</strong>：下午返台<br>
+        </div>
+      </div>
+      <div class="card">
+        <h2>📍 行程規劃</h2>
+        <input type="date" id="tripDate">
+        <input type="text" id="itineraryPlace" placeholder="景點名稱">
+        <textarea id="itineraryNote" placeholder="筆記..." rows="2"></textarea>
+        <button onclick="addItinerary()">➕ 加入行程</button>
+        <ul class="item-list" id="itineraryList"></ul>
+      </div>
+    </div>
+
+    <div id="notes" class="content-section">
+      <div class="card">
+        <h2>📝 旅行筆記</h2>
+        <input type="text" id="noteTitle" placeholder="標題">
+        <textarea id="noteContent" placeholder="記事內容..." rows="3"></textarea>
+        <button onclick="addNote()">💾 儲存筆記</button>
+        <div id="notesList" style="margin-top: 15px;"></div>
+      </div>
+    </div>
+
+    <div id="translate" class="content-section">
+      <div class="card">
+        <h2>🈯 日文翻譯</h2>
+        <select id="translateCategory" onchange="showQuickTranslations()">
+          <option value="">選擇情境</option>
+          <option value="restaurant">🍽️ 餐廳</option>
+          <option value="transport">🚇 交通</option>
+          <option value="shopping">🛍️ 購物</option>
+          <option value="hotel">🏨 住宿</option>
+          <option value="emergency">🚑 緊急</option>
+        </select>
+        <input type="text" id="customTranslate" placeholder="輸入中文翻譯成日文">
+        <button onclick="doTranslate()">翻譯</button>
+        <div id="translateResult" class="translation-result" style="display:none;"></div>
+        <div id="quickTranslations" style="margin-top:15px;"></div>
+      </div>
+    </div>
+
+    <div id="food" class="content-section">
+      <div class="card">
+        <h2>🍽️ 大阪必吃美食</h2>
+        <div style="margin-bottom:15px;">
+          <span class="tag food-tag">章魚燒</span>
+          <span class="tag food-tag">串炸</span>
+          <span class="tag food-tag">大阪燒</span>
+          <span class="tag food-tag">拉麵</span>
+          <span class="tag food-tag">螃蟹</span>
+          <span class="tag food-tag">甜點</span>
+        </div>
+        <input type="text" id="foodPlace" placeholder="餐廳名稱">
+        <input type="text" id="foodAddress" placeholder="地址">
+        <input type="text" id="foodMemo" placeholder="備註（推薦菜色/價格）">
+        <button onclick="addFood()">➕ 加入美食清單</button>
+        <ul class="item-list" id="foodList"></ul>
+      </div>
+    </div>
+
+    <div id="checklist" class="content-section">
+      <div class="card">
+        <h2>🎒 打包清單</h2>
+        <button onclick="generateChecklist()" style="background:#4ecdc4;margin-bottom:15px;">✨ 自動生成清單</button>
+        <div id="checklistItems"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data
+    let itineraries = [];
+    let notes = [];
+    let foods = [];
+    let checklist = [];
+
+    // Weather
+    function refreshWeather() {
+      const icons = ['🌸', '☀️', '🌤️', '⛅', '🌧️', '❄️'];
+      const descs = ['晴朗', '微風', '多雲', '陰天', '有雨', '涼爽'];
+      const temps = [18, 22, 20, 17, 15, 16];
+      const i = Math.floor(Math.random() * icons.length);
+      document.getElementById('weatherIcon').textContent = icons[i];
+      document.getElementById('weatherTemp').textContent = temps[i] + '°C';
+      document.getElementById('weatherDesc').textContent = '大阪 ' + descs[i];
+    }
+
+    // Currency
+    function convertCurrency() {
+      const twd = document.getElementById('twdAmount').value;
+      const jpy = Math.round(twd * 0.22);
+      document.getElementById('jpyResult').textContent = '= ' + jpy.toLocaleString() + ' ¥';
+    }
+
+    // Tabs
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.content-section').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tab).classList.add('active');
+    }
+
+    // Itinerary
+    function addItinerary() {
+      const date = document.getElementById('tripDate').value;
+      const place = document.getElementById('itineraryPlace').value;
+      const note = document.getElementById('itineraryNote').value;
+      if (!place) return;
+      itineraries.push({ date, place, note });
+      renderItineraries();
+      document.getElementById('itineraryPlace').value = '';
+      document.getElementById('itineraryNote').value = '';
+    }
+
+    function renderItineraries() {
+      const list = document.getElementById('itineraryList');
+      list.innerHTML = itineraries.map((item, i) => 
+        `<li>
+          <div>
+            <strong>${item.place}</strong>
+            ${item.date ? '<br><small>' + item.date + '</small>' : ''}
+            ${item.note ? '<br><small style="color:#666;">' + item.note + '</small>' : ''}
+          </div>
+          <button class="delete-btn" onclick="deleteItinerary(${i})">刪</button>
+        </li>`
+      ).join('');
+    }
+
+    function deleteItinerary(i) {
+      itineraries.splice(i, 1);
+      renderItineraries();
+    }
+
+    // Notes
+    function addNote() {
+      const title = document.getElementById('noteTitle').value;
+      const content = document.getElementById('noteContent').value;
+      if (!title) return;
+      notes.push({ title, content, time: new Date().toLocaleString() });
+      renderNotes();
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteContent').value = '';
+    }
+
+    function renderNotes() {
+      const list = document.getElementById('notesList');
+      list.innerHTML = notes.map((n, i) => 
+        `<div class="note-item">
+          <div class="time">${n.time}</div>
+          <div><strong>${n.title}</strong></div>
+          <div class="text">${n.content}</div>
+          <button class="delete-btn" onclick="deleteNote(${i})" style="margin-top:5px;">刪</button>
+        </div>`
+      ).join('');
+    }
+
+    function deleteNote(i) {
+      notes.splice(i, 1);
+      renderNotes();
+    }
+
+    // Food
+    function addFood() {
+      const place = document.getElementById('foodPlace').value;
+      const address = document.getElementById('foodAddress').value;
+      const memo = document.getElementById('foodMemo').value;
+      if (!place) return;
+      foods.push({ place, address, memo });
+      renderFoods();
+      document.getElementById('foodPlace').value = '';
+      document.getElementById('foodAddress').value = '';
+      document.getElementById('foodMemo').value = '';
+    }
+
+    function renderFoods() {
+      const list = document.getElementById('foodList');
+      list.innerHTML = foods.map((f, i) => 
+        `<li>
+          <div>
+            <strong>${f.place}</strong>
+            ${f.address ? '<br><small>' + f.address + '</small>' : ''}
+            ${f.memo ? '<br><small style="color:#ff6b6b;">' + f.memo + '</small>' : ''}
+          </div>
+          <button class="delete-btn" onclick="deleteFood(${i})">刪</button>
+        </li>`
+      ).join('');
+    }
+
+    function deleteFood(i) {
+      foods.splice(i, 1);
+      renderFoods();
+    }
+
+    // Translate
+    const translations = {
+      restaurant: [
+        { jp: 'すみません、メニューをください', tw: '不好意思，請給我菜單' },
+        { jp: 'お会計をお願いします', tw: '請結帳' },
+        { jp: 'これをください', tw: '請給我這個' },
+        { jp: '美味しいですか？', tw: '好吃嗎？' },
+        { jp: '行列はどこですか？', tw: '排隊在哪裡？' },
+      ],
+      transport: [
+        { jp: 'この電車は大阪駅に行きますか？', tw: '這班電車會到大阪站嗎？' },
+        { jp: '切符 bought', tw: '票在哪裡買？' },
+        { jp: '出口はどこですか？', tw: '出口在哪裡？' },
+        { jp: 'この駅は在哪裡？', tw: '這一站是哪裡？' },
+      ],
+      shopping: [
+        { jp: 'これはいくらですか？', tw: '這個多少錢？' },
+        { jp: 'クレジットカードは使えますか？', tw: '可以刷卡嗎？' },
+        { jp: '免税できますか？', tw: '可以免稅嗎？' },
+        { jp: '袋をください', tw: '請給我袋子' },
+      ],
+      hotel: [
+        { jp: 'チェックインをお願いします', tw: '請讓我辦理入住' },
+        { jp: 'キーを取り忘れました', tw: '我忘記拿房間鑰匙了' },
+        { jp: '朝食付きですか？', tw: '有含早餐嗎？' },
+      ],
+      emergency: [
+        { jp: '助けて！', tw: '救命！' },
+        { jp: '病院はどこですか？', tw: '醫院在哪裡？' },
+        { jp: '警察を呼んでください', tw: '請叫警察' },
+        { jp: 'キャッシュカードの不通です', tw: '金融卡被鎖了' },
+      ]
+    };
+
+    function showQuickTranslations() {
+      const cat = document.getElementById('translateCategory').value;
+      const container = document.getElementById('quickTranslations');
+      if (!cat || !translations[cat]) { container.innerHTML = ''; return; }
+      container.innerHTML = translations[cat].map(t => 
+        `<div class="note-item" style="cursor:pointer;" onclick="speakJapanese('${t.jp}')">
+          <div class="jp-text">${t.jp}</div>
+          <div class="tw-text">${t.tw}</div>
+        </div>`
+      ).join('');
+    }
+
+    function doTranslate() {
+      const text = document.getElementById('customTranslate').value;
+      if (!text) return;
+      const result = document.getElementById('translateResult');
+      result.style.display = 'block';
+      result.innerHTML = `<div class="jp-text">（模擬翻譯）</div>
+        <div class="tw-text">${text} → 日文翻譯需要 API，這是示範文字</div>`;
+    }
+
+    function speakJapanese(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP';
+        speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Checklist
+    function generateChecklist() {
+      checklist = [
+        { text: '護照', checked: false },
+        { text: '機票/訂房確認', checked: false },
+        { text: '日幣現金', checked: false },
+        { text: '信用卡', checked: false },
+        { text: '手機+充電器', checked: false },
+        { text: '萬用轉接頭', checked: false },
+        { text: '衣物（按天數 x2人）', checked: false },
+        { text: '內衣褲/襪子 x2人', checked: false },
+        { text: '牙刷/牙膏', checked: false },
+        { text: '常備藥物', checked: false },
+        { text: '相機/手機', checked: false },
+        { text: '筆記本/筆', checked: false },
+        { text: '雨傘', checked: false },
+        { text: '暖暖包（冬季）', checked: false },
+      ];
+      renderChecklist();
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('checklistItems');
+      container.innerHTML = checklist.map((item, i) => 
+        `<div class="checklist-item">
+          <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheck(${i})">
+          <span style="${item.checked ? 'text-decoration:line-through;color:#999;' : ''}">${item.text}</span>
+        </div>`
+      ).join('');
+    }
+
+    function toggleCheck(i) {
+      checklist[i].checked = !checklist[i].checked;
+      renderChecklist();
+    }
+
+    // Init
+    refreshWeather();
+  </script>
+</body>
+</html>

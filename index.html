@@ -41,6 +41,19 @@
     .translation-result { background: #f0f0f0; padding: 15px; border-radius: 10px; margin-top: 10px; }
     .jp-text { color: #ff6b6b; font-size: 18px; font-weight: bold; margin-bottom: 5px; }
     .tw-text { color: #333; }
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .photo-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #f0f0f0; }
+    .photo-placeholder { width: 100%; aspect-ratio: 1; border-radius: 8px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+    .flight-card { background: #f8f8f8; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #ff6b6b; }
+    .flight-card .time { font-size: 20px; font-weight: bold; color: #ff6b6b; }
+    .flight-card .info { color: #666; font-size: 14px; }
+    .hotel-card { background: #f8f8f8; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #4ecdc4; }
+    .hotel-card .name { font-size: 16px; font-weight: bold; color: #333; }
+    .hotel-card .info { color: #666; font-size: 14px; }
+    .day-schedule { background: #fff3f0; padding: 12px; border-radius: 10px; margin-bottom: 8px; }
+    .day-schedule .day-header { font-weight: bold; color: #ff6b6b; margin-bottom: 8px; }
+    .day-schedule .item { padding: 6px 0; border-bottom: 1px dashed #f0f0f0; font-size: 14px; }
+    .day-schedule .item:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -76,6 +89,9 @@
       <div class="tab" onclick="switchTab('translate')">翻譯</div>
       <div class="tab" onclick="switchTab('food')">美食</div>
       <div class="tab" onclick="switchTab('checklist')">打包</div>
+      <div class="tab" onclick="switchTab('flight')">✈️</div>
+      <div class="tab" onclick="switchTab('hotel')">🏨</div>
+      <div class="tab" onclick="switchTab('photos')">📸</div>
     </div>
 
     <div id="itinerary" class="content-section active">
@@ -156,6 +172,50 @@
         <div id="checklistItems"></div>
       </div>
     </div>
+
+    <div id="flight" class="content-section">
+      <div class="card">
+        <h2>✈️ 航班資訊</h2>
+        <input type="text" id="flightName" placeholder="航空公司（如：星宇、長榮）">
+        <input type="text" id="flightNumber" placeholder="航班號（如：JX820）">
+        <input type="date" id="flightDate" placeholder="日期">
+        <input type="time" id="flightDepart" placeholder="起飛時間">
+        <input type="time" id="flightArrive" placeholder="抵達時間">
+        <input type="text" id="flightRoute" placeholder="航線（如：TPE → KIX）">
+        <button onclick="addFlight()">➕ 加入航班</button>
+        <div id="flightList"></div>
+      </div>
+      <div class="card" style="background:#fff3f0;">
+        <h2>📅 自動行程表</h2>
+        <button onclick="generateDaySchedule()" style="background:#ff6b6b;margin-bottom:15px;">🗓️ 按日期生成行程</button>
+        <div id="daySchedule"></div>
+      </div>
+    </div>
+
+    <div id="hotel" class="content-section">
+      <div class="card">
+        <h2>🏨 飯店資訊</h2>
+        <input type="text" id="hotelName" placeholder="飯店名稱">
+        <input type="text" id="hotelAddress" placeholder="地址">
+        <input type="text" id="hotelCheckin" placeholder="入住時間">
+        <input type="text" id="hotelCheckout" placeholder="退房時間">
+        <input type="text" id="hotelMemo" placeholder="備註（機場交通、特殊設施）">
+        <button onclick="addHotel()">➕ 加入飯店</button>
+        <div id="hotelList"></div>
+      </div>
+    </div>
+
+    <div id="photos" class="content-section">
+      <div class="card">
+        <h2>📸 景點照片牆</h2>
+        <p style="color:#666;font-size:14px;margin-bottom:15px;">點擊 + 新增照片（可輸入圖片網址）</p>
+        <div class="photo-grid" id="photoGrid">
+          <div class="photo-placeholder" onclick="addPhoto()">➕</div>
+        </div>
+        <input type="text" id="photoUrl" placeholder="輸入圖片網址（可選）" style="margin-top:10px;">
+        <button onclick="addPhotoByUrl()" style="background:#4ecdc4;">📷 新增圖片</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -164,6 +224,9 @@
     let notes = [];
     let foods = [];
     let checklist = [];
+    let flights = [];
+    let hotels = [];
+    let photos = [];
 
     // Weather
     function refreshWeather() {
@@ -379,6 +442,122 @@
     function toggleCheck(i) {
       checklist[i].checked = !checklist[i].checked;
       renderChecklist();
+    }
+
+    // Flights
+    function addFlight() {
+      const name = document.getElementById('flightName').value;
+      const number = document.getElementById('flightNumber').value;
+      const date = document.getElementById('flightDate').value;
+      const depart = document.getElementById('flightDepart').value;
+      const arrive = document.getElementById('flightArrive').value;
+      const route = document.getElementById('flightRoute').value;
+      if (!number) return;
+      flights.push({ name, number, date, depart, arrive, route });
+      renderFlights();
+      ['flightName','flightNumber','flightDate','flightDepart','flightArrive','flightRoute'].forEach(id => document.getElementById(id).value = '');
+    }
+
+    function renderFlights() {
+      const list = document.getElementById('flightList');
+      list.innerHTML = flights.map((f, i) =>
+        `<div class="flight-card">
+          <div style="font-size:14px;color:#666;">${f.date} ${f.name}</div>
+          <div class="time">${f.depart} → ${f.arrive}</div>
+          <div class="info">${f.number}｜${f.route}</div>
+          <button class="delete-btn" onclick="deleteFlight(${i})" style="margin-top:8px;">刪</button>
+        </div>`
+      ).join('');
+    }
+
+    function deleteFlight(i) {
+      flights.splice(i, 1);
+      renderFlights();
+    }
+
+    // Hotels
+    function addHotel() {
+      const name = document.getElementById('hotelName').value;
+      const address = document.getElementById('hotelAddress').value;
+      const checkin = document.getElementById('hotelCheckin').value;
+      const checkout = document.getElementById('hotelCheckout').value;
+      const memo = document.getElementById('hotelMemo').value;
+      if (!name) return;
+      hotels.push({ name, address, checkin, checkout, memo });
+      renderHotels();
+      ['hotelName','hotelAddress','hotelCheckin','hotelCheckout','hotelMemo'].forEach(id => document.getElementById(id).value = '');
+    }
+
+    function renderHotels() {
+      const list = document.getElementById('hotelList');
+      list.innerHTML = hotels.map((h, i) =>
+        `<div class="hotel-card">
+          <div class="name">🏨 ${h.name}</div>
+          <div class="info">${h.address}</div>
+          <div class="info">入住：${h.checkin}｜退房：${h.checkout}</div>
+          ${h.memo ? '<div class="info" style="color:#ff6b6b;">' + h.memo + '</div>' : ''}
+          <button class="delete-btn" onclick="deleteHotel(${i})" style="margin-top:8px;">刪</button>
+        </div>`
+      ).join('');
+    }
+
+    function deleteHotel(i) {
+      hotels.splice(i, 1);
+      renderHotels();
+    }
+
+    // Photos
+    function addPhotoByUrl() {
+      const url = document.getElementById('photoUrl').value;
+      if (url) {
+        photos.push(url);
+        renderPhotos();
+        document.getElementById('photoUrl').value = '';
+      }
+    }
+
+    function addPhoto() {
+      const url = prompt('輸入圖片網址：');
+      if (url) {
+        photos.push(url);
+        renderPhotos();
+      }
+    }
+
+    function renderPhotos() {
+      const grid = document.getElementById('photoGrid');
+      let html = photos.map((p, i) =>
+        `<img src="${p}" alt="photo${i}" onclick="deletePhoto(${i})" style="cursor:pointer;">`
+      ).join('');
+      html += '<div class="photo-placeholder" onclick="addPhoto()">➕</div>';
+      grid.innerHTML = html;
+    }
+
+    function deletePhoto(i) {
+      if (confirm('刪除這張照片？')) {
+        photos.splice(i, 1);
+        renderPhotos();
+      }
+    }
+
+    // Day Schedule Generator
+    function generateDaySchedule() {
+      const days = [
+        { day: 'Day 1（9/19）', items: ['✈️ 抵達關西機場', '🚇 搭乘南海電鐵至市區', '🏨 入住飯店', '心齋橋散步'] },
+        { day: 'Day 2（9/20）', items: ['🏯 大阪城天守閣', '🍽️ 黑門市場吃早餐', '🛍️ 道頓堀購物', '🌙 晚上的頓堀夜景'] },
+        { day: 'Day 3（9/21）', items: ['🎢 環球影城（USJ）全天', '⚠️ 提早入園抢快速通关'] },
+        { day: 'Day 4（9/22）', items: ['🦌 奈良公園餵鹿', '🛍️ 唐吉訶德購物', '🛒 心齋橋藥妝'] },
+        { day: 'Day 5（9/23）', items: ['🗼 通天閣', '🎰 新世界天王寺', '🍢 串炸老店'] },
+        { day: 'Day 6（9/24）', items: ['🚄 神戶一日遊（神戶牛）', '或 🚄 京都嵐山'] },
+        { day: 'Day 7（9/25）', items: ['🛍️ 最後購物', '🎁 機場免稅店', '✈️ 返台'] },
+      ];
+      const container = document.getElementById('daySchedule');
+      container.innerHTML = days.map(d =>
+        `<div class="day-schedule">
+          <div class="day-header">${d.day}</div>
+          ${d.items.map(item => '<div class="item">' + item + '</div>').join('')}
+        </div>`
+      ).join('');
     }
 
     // Init

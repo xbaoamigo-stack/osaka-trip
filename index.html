@@ -99,16 +99,14 @@
 
     <div id="itinerary" class="content-section active">
       <div class="card" style="background:#fff3f0;">
-        <h2>🗓️ 建議行程（7天6夜）</h2>
+        <h2>🗓️ 完整行程（6天5夜）</h2>
         <div style="font-size:14px;color:#666;margin-bottom:10px;">
-          <strong>Day1（9/19）</strong>：抵達大阪 → 心齋橋<br>
-          <strong>Day2（9/20）</strong>：大阪城 → 黑門市場 → 道頓堀<br>
-          <strong>Day3（9/21）</strong>：環球影城（USJ）<br>
-          <strong>Day4（9/22）</strong>：奈良（餵鹿）→ 唐吉訶德<br>
-          <strong>Day5（9/23）</strong>：通天閣 → 新世界 → 天王寺<br>
-          <strong>Day6（9/24）</strong>：大阪近郊（神戶/京都）<br>
-          <strong>Day7（9/25）</strong>：最後購物 → 機場<br>
-          <strong>Day8（9/26）</strong>：下午返台<br>
+          <strong>Day1（9/19）</strong>：抵達關西機場 19:30 → 南海電鐵 → 大阪 21:00 → 入住飯店<br><br>
+          <strong>Day2（9/20）</strong>：道頓堀早餐 → 心齋橋漫步 → 道頓堀美食<br><br>
+          <strong>Day3（9/21）</strong>：大阪城散步 → 天滿宮 → 下午茶 → 晚間燒肉<br><br>
+          <strong>Day4（9/22）</strong>：USJ 環球影城全天 → 美味漢堡<br><br>
+          <strong>Day5（9/23）</strong>：奈良公園餵鹿 → 返回大阪<br><br>
+          <strong>Day6（9/24）</strong>：自由活動 → 返回台北<br>
         </div>
       </div>
       <div class="card">
@@ -546,13 +544,12 @@
     // Day Schedule Generator
     function generateDaySchedule() {
       const days = [
-        { day: 'Day 1（9/19）', items: ['✈️ 抵達關西機場', '🚇 搭乘南海電鐵至市區', '🏨 入住飯店', '心齋橋散步'] },
-        { day: 'Day 2（9/20）', items: ['🏯 大阪城天守閣', '🍽️ 黑門市場吃早餐', '🛍️ 道頓堀購物', '🌙 晚上的頓堀夜景'] },
-        { day: 'Day 3（9/21）', items: ['🎢 環球影城（USJ）全天', '⚠️ 提早入園抢快速通关'] },
-        { day: 'Day 4（9/22）', items: ['🦌 奈良公園餵鹿', '🛍️ 唐吉訶德購物', '🛒 心齋橋藥妝'] },
-        { day: 'Day 5（9/23）', items: ['🗼 通天閣', '🎰 新世界天王寺', '🍢 串炸老店'] },
-        { day: 'Day 6（9/24）', items: ['🚄 神戶一日遊（神戶牛）', '或 🚄 京都嵐山'] },
-        { day: 'Day 7（9/25）', items: ['🛍️ 最後購物', '🎁 機場免稅店', '✈️ 返台'] },
+        { day: 'Day 1（9/19）', items: ['✈️ 抵達關西機場 19:30', '🚇 南海電鐵', '🏨 入住飯店', '🍜 道頓堀晚餐'] },
+        { day: 'Day 2（9/20）', items: ['🍽️ 道頓堀早餐', '🚶 心齋橋漫步', '🍜 道頓堀午餐', '🛍️ 道頓堀購物', '🍖 晚餐+甜點'] },
+        { day: 'Day 3（9/21）', items: ['🏯 大阪城散步', '⛩️ 天滿宮', '☕ 下午茶', '🥩 晚間燒肉'] },
+        { day: 'Day 4（9/22）', items: ['🎢 USJ 環球影城全天', '🍔 美味漢堡'] },
+        { day: 'Day 5（9/23）', items: ['🦌 奈良公園餵鹿', '🚃 返回大阪', '🍽️ 晚餐自由安排'] },
+        { day: 'Day 6（9/24）', items: ['🛍️ 自由活動（最後購物）', '✈️ 關西機場返台'] },
       ];
       const container = document.getElementById('daySchedule');
       container.innerHTML = days.map(d =>

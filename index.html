@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>🦞 大阪旅遊助手 v3｜2人｜9/19-9/26</title>
+  <title>🦞 大阪旅遊助手 v3｜2人｜9/19-9/24</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #ff6b6b, #4ecdc4); min-height: 100vh; padding: 20px; }
@@ -225,9 +225,7 @@
     let notes = [];
     let foods = [];
     let checklist = [];
-    let flights = [];
-    let hotels = [];
-    let photos = [];
+            let photos = [];
 
     // Weather
     function refreshWeather() {
@@ -459,6 +457,13 @@
       ['flightName','flightNumber','flightDate','flightDepart','flightArrive','flightRoute'].forEach(id => document.getElementById(id).value = '');
     }
 
+    // Pre-populated flights
+    const flights = [
+      { name: '星宇航空', number: 'JX820', date: '2026-09-19', depart: '19:30', arrive: '23:10', route: 'TPE ✈️ KIX' },
+      { name: '星宇航空', number: 'JX821', date: '2026-09-24', depart: '10:00', arrive: '12:10', route: 'KIX ✈️ TPE' },
+    ];
+    renderFlights();
+
     function renderFlights() {
       const list = document.getElementById('flightList');
       list.innerHTML = flights.map((f, i) =>
@@ -488,6 +493,12 @@
       renderHotels();
       ['hotelName','hotelAddress','hotelCheckin','hotelCheckout','hotelMemo'].forEach(id => document.getElementById(id).value = '');
     }
+
+    // Pre-populated hotels
+    const hotels = [
+      { name: 'OMO 關西機場 by HOSHINO RESORTS', address: '泉佐野市市場東 3-11-1', checkin: '2026-09-19', checkout: '2026-09-24', memo: '禁菸客房、2張小型雙人床（Macaron Room）' },
+    ];
+    renderHotels();
 
     function renderHotels() {
       const list = document.getElementById('hotelList');
@@ -544,12 +555,12 @@
     // Day Schedule Generator
     function generateDaySchedule() {
       const days = [
-        { day: 'Day 1（9/19）', items: ['✈️ 抵達關西機場 19:30', '🚇 南海電鐵', '🏨 入住飯店', '🍜 道頓堀晚餐'] },
-        { day: 'Day 2（9/20）', items: ['🍽️ 道頓堀早餐', '🚶 心齋橋漫步', '🍜 道頓堀午餐', '🛍️ 道頓堀購物', '🍖 晚餐+甜點'] },
-        { day: 'Day 3（9/21）', items: ['🏯 大阪城散步', '⛩️ 天滿宮', '☕ 下午茶', '🥩 晚間燒肉'] },
-        { day: 'Day 4（9/22）', items: ['🎢 USJ 環球影城全天', '🍔 美味漢堡'] },
-        { day: 'Day 5（9/23）', items: ['🦌 奈良公園餵鹿', '🚃 返回大阪', '🍽️ 晚餐自由安排'] },
-        { day: 'Day 6（9/24）', items: ['🛍️ 自由活動（最後購物）', '✈️ 關西機場返台'] },
+        { day: 'Day 1（9/19）', items: ['✈️ JX820 TPE 19:30起飛 → KIX 23:10抵達', '🚇 前往OMO關西機場飯店', '🏨 入住 check-in'] },
+        { day: 'Day 2（9/20）', items: ['🍽️ 早餐', '🚶 遊覽大阪', '🛍️ 購物/觀光'] },
+        { day: 'Day 3（9/21）', items: ['🎢 USJ 環球影城全天'] },
+        { day: 'Day 4（9/22）', items: ['🦌 奈良公園餵鹿', '🛍️ 返回大阪購物'] },
+        { day: 'Day 5（9/23）', items: ['🚶 自由活動（大阪觀光）', '🛍️ 最後購物'] },
+        { day: 'Day 6（9/24）', items: ['🏨 退房', '✈️ JX821 KIX 10:00起飛 → TPE 12:10抵達'] },
       ];
       const container = document.getElementById('daySchedule');
       container.innerHTML = days.map(d =>
